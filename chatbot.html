@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>React Basics</title>
+</head>
+
+<body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+    <script type="text/babel">
+        function ChatInput() {
+            return (
+                <>
+                    {/* Fragment syntax: allows us to return multiple elements without a wrapper div */}
+                    <input
+                        type="text"
+                        placeholder="Type message here"
+                        size="50" />
+                    <button>Send</button>
+                </>
+            );
+        }
+
+        function ChatMessage({ message, sender }) {
+            // const message = props.message;
+            // const sender = props.sender;
+            // const { message, sender } = props; // Object destructuring syntax (React props shortcut)
+
+            // if (sender === "bot") {
+            //     return (
+            //         <div> {/* Ở đây nên dùng div vì nó chiếm hết một dòng (100% chiều ngang), không cho phần tử khác nằm cùng hàng.*/}
+            //             <img src="../image/as.jpg" width="50" />
+            //             {message}
+            //         </div>
+            //     );
+            // }
+
+            return (
+                <div>
+
+                    {sender === "bot" && (
+                        <img
+                            src="../image/as.jpg"
+                            width="50"
+                            style={{ borderRadius: "100%" }}
+                        />
+                    )} {/* Cách dùng if  */}
+                    {message}
+                    {sender === "user" && (
+                        <img
+                            src="../image/494643591_1753766695542434_3806171540582182133_n.jpg"
+                            width="50"
+                            height="50"
+                            style={{ borderRadius: "100%" }}
+                        />)}
+                </div>
+            );
+
+        }
+
+
+
+        function ChatMessages() {
+            const [chatMessages, setChatMessages] = React.useState([{
+                message: "Hello chatbot",
+                sender: "user",
+                id: "id1"
+            }, {
+                message: "Hello, how are you?",
+                sender: "bot",
+                id: "id2"
+            }, {
+                message: "Can you help me?",
+                sender: "user",
+                id: "id3"
+            }, {
+                message: "Yes, I can help you.",
+                sender: "bot",
+                id: "id4"
+            }]); // useState sẽ trả về 2 phần tử  trong một mảng state (giá trị hiện tại) và setState (hàm cập nhật)
+
+            // const chatMessages = array[0]; // array[0] là giá trị hiện tại của state gồm một mảng các tin nhắn (chatMessages)
+            // const setChatMessages = array[1]; //  array[1] là hàm để cập nhật state (setChatMessages) 
+
+            function sendMessage() {
+                setChatMessages([
+                    ...chatMessages, // spread operator: giúp sao chép tất cả phần tử của mảng chatMessages vào một mảng mới, sau đó thêm phần tử mới vào cuối mảng mới này
+                    {
+                        message: "This is a new message",
+                        sender: "bot",
+                        id: crypto.randomUUID() // tạo id ngẫu nhiên cho tin nhắn mới
+                    }
+                ]);
+            }
+
+            return (
+                <>
+                    <button onClick={sendMessage}>Send message</button>
+                    {chatMessages.map((chatMessage) => {
+                        return (
+                            <ChatMessage
+                                message={chatMessage.message}
+                                sender={chatMessage.sender}
+                                key={chatMessage.id} // key prop: giúp React xác định phần tử nào đã thay đổi, được thêm vào hoặc bị xóa, giúp tối ưu hóa hiệu suất khi render lại danh sách các phần tử
+                            />
+                        );
+                    })}
+                </>);
+        }
+
+        function App() {
+
+
+            // const chatMessageCoomponent = 
+
+            return (
+                <>
+                    <ChatInput />
+                    <ChatMessages />
+                </>
+            );
+        }
+
+
+
+        const container = document.querySelector('.js-container');
+        ReactDOM.createRoot(container).render(<App />);
+    </script>
+</body>
+
+</html>
