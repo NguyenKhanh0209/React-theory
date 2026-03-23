@@ -3,6 +3,73 @@
 
 <head>
     <title>React Basics</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin-top: 0px;
+            margin-bottom: 0px;
+
+        }
+
+        .app-container {
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            /* justify-content: ; */
+        }
+
+        .send-button {
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .chat-input {
+            padding: 10px 20px;
+            font-size: 15px;
+            border-radius: 10px;
+            border-width: 1px;
+            /* border: 2px solid gray; */
+            flex-grow: 1;
+        }
+
+        .chat-input-container {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .chat-message-user {
+            display: flex;
+            justify-content: end;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .chat-message-bot {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .chat-messages-container {
+            flex-grow: 1;
+            margin-top: 20px;
+            overflow: scroll;
+            scrollbar-width: none; /* Ẩn scrollbar trên Firefox */
+        }
+    </style>
 </head>
 
 <body>
@@ -48,17 +115,18 @@
             }
 
             return (
-                <>
+                <div className="chat-input-container">
                     {/* Fragment syntax: allows us to return multiple elements without a wrapper div */}
                     <input
                         type="text"
                         placeholder="Type message here"
                         size="50"
+                        className="chat-input"
                         onChange={saveInputText}
                         value={inputText} // controlled component: input text được điều khiển bởi state inputText, giá trị của input sẽ luôn đồng bộ với state
                     />
-                    <button onClick={sendMessage}>Send</button>
-                </>
+                    <button className="send-button" onClick={sendMessage}>Send</button>
+                </div>
             );
         }
 
@@ -70,15 +138,18 @@
             // if (sender === "bot") {
             //     return (
             //         <div> {/* Ở đây nên dùng div vì nó chiếm hết một dòng (100% chiều ngang), không cho phần tử khác nằm cùng hàng.*/}
-            //             <img src="../image/as.jpg" width="50" />
+            //             <img src="../image/as.jpg" width="50" /> 
             //             {message}
             //         </div>
             //     );
             // }
 
             return (
-                <div>
-
+                <div className={
+                    sender === "user"
+                        ? "chat-message-user"
+                        : "chat-message-bot"}
+                > {/* Toán tử 3 ngôi (Ternary Operator)  */}
                     {sender === "bot" && (
                         <img
                             src="../image/as.jpg"
@@ -86,7 +157,7 @@
                             style={{ borderRadius: "100%" }}
                         />
                     )} {/* Cách dùng if  */}
-                    {message}
+                    <div style={{ backgroundColor: "#f0f0f0", padding: "10px", borderRadius: "10px", maxWidth: "300px" }}>{message}</div>
                     {sender === "user" && (
                         <img
                             src="../image/494643591_1753766695542434_3806171540582182133_n.jpg"
@@ -103,7 +174,7 @@
 
         function ChatMessages({ chatMessages }) {
             return (
-                <>
+                <div className="chat-messages-container">
                     {chatMessages.map((chatMessage) => {
                         return (
                             <ChatMessage
@@ -113,7 +184,7 @@
                             />
                         );
                     })}
-                </>);
+                </div>);
         }
 
         function App() {
@@ -139,15 +210,16 @@
             // const setChatMessages = array[1]; //  array[1] là hàm để cập nhật state (setChatMessages) 
 
             return (
-                <>
+                <div className="app-container">
+
+                    <ChatMessages
+                        chatMessages={chatMessages} // Name convention là props có cùng tên với state sẽ dễ hiểu hơn, nhưng không bắt buộc phải giống nhau
+                    />
                     <ChatInput
                         chatMessages={chatMessages}
                         setChatMessages={setChatMessages}
                     />
-                    <ChatMessages
-                        chatMessages={chatMessages} // Name convention là props có cùng tên với state sẽ dễ hiểu hơn, nhưng không bắt buộc phải giống nhau
-                    />
-                </>
+                </div>
             );
         }
 
