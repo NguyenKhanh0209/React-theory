@@ -67,7 +67,8 @@
             flex-grow: 1;
             margin-top: 20px;
             overflow: scroll;
-            scrollbar-width: none; /* Ẩn scrollbar trên Firefox */
+            scrollbar-width: none;
+            /* Ẩn scrollbar trên Firefox */
         }
     </style>
 </head>
@@ -173,8 +174,19 @@
 
 
         function ChatMessages({ chatMessages }) {
+            const chatMessagesRef = React.useRef(null);
+            React.useEffect(() => { // useEffect này sẽ thực hiện khi component này được tạo hoặc update
+                const containerElement = chatMessagesRef.current; // lấy phần tử DOM của container chat messages thông qua ref
+                if (containerElement) { // kiểm tra nếu phần tử DOM tồn tại
+                    containerElement.scrollTop = containerElement.scrollHeight; // scrollTop: vị trí scroll hiện tại = scrollHeight: chiều cao toàn bộ nội dung bao gồm phần overflow
+                }
+            }, [chatMessages]) // []: chỉ chạy useEffect 1 lần khi component được tạo, không chạy lại khi component update
+            // [chatMessages]: chạy useEffect mỗi khi chatMessages thay đổi (khi có tin nhắn mới được gửi hoặc nhận)
             return (
-                <div className="chat-messages-container">
+                <div
+                    className="chat-messages-container"
+                    ref={chatMessagesRef} // ref: lưu tham chiếu đến phần tử DOM của container chat messages
+                >
                     {chatMessages.map((chatMessage) => {
                         return (
                             <ChatMessage
