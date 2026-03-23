@@ -11,17 +11,53 @@
     <script src="https://unpkg.com/supersimpledev/react.js"></script>
     <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
 
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
+
     <script src="https://unpkg.com/supersimpledev/babel.js"></script>
     <script type="text/babel">
-        function ChatInput() {
+        function ChatInput({ chatMessages, setChatMessages }) {
+            const [inputText, setInputText] = React.useState("");
+
+            function saveInputText(event) {
+                setInputText(event.target.value);
+            }
+
+            function sendMessage() {
+                const newChatMessages = [ // chỉ dựa vào chatMessage khi cập nhật state lần cập nhật thứ 2 (chatbot response) sẽ đè lên và làm mất lần cập nhật 1 (user message)
+                    ...chatMessages, // spread operator: giúp sao chép tất cả phần tử của mảng chatMessages vào một mảng mới, sau đó thêm phần tử mới vào cuối mảng mới này
+                    {
+                        message: inputText,
+                        sender: "user",
+                        id: crypto.randomUUID() // tạo id ngẫu nhiên cho tin nhắn mới
+                    }
+                ]
+
+                setChatMessages(newChatMessages);
+
+                const response = Chatbot.getResponse(inputText);
+                setChatMessages([
+                    ...newChatMessages,
+                    {
+                        message: response,
+                        sender: "bot",
+                        id: crypto.randomUUID() // tạo id ngẫu nhiên cho tin nhắn mới
+                    }
+                ]);
+
+                setInputText(""); // reset input text sau khi gửi tin nhắn
+            }
+
             return (
                 <>
                     {/* Fragment syntax: allows us to return multiple elements without a wrapper div */}
                     <input
                         type="text"
                         placeholder="Type message here"
-                        size="50" />
-                    <button>Send</button>
+                        size="50"
+                        onChange={saveInputText}
+                        value={inputText} // controlled component: input text được điều khiển bởi state inputText, giá trị của input sẽ luôn đồng bộ với state
+                    />
+                    <button onClick={sendMessage}>Send</button>
                 </>
             );
         }
@@ -65,7 +101,22 @@
 
 
 
-        function ChatMessages() {
+        function ChatMessages({ chatMessages }) {
+            return (
+                <>
+                    {chatMessages.map((chatMessage) => {
+                        return (
+                            <ChatMessage
+                                message={chatMessage.message}
+                                sender={chatMessage.sender}
+                                key={chatMessage.id} // key prop: giúp React xác định phần tử nào đã thay đổi, được thêm vào hoặc bị xóa, giúp tối ưu hóa hiệu suất khi render lại danh sách các phần tử
+                            />
+                        );
+                    })}
+                </>);
+        }
+
+        function App() {
             const [chatMessages, setChatMessages] = React.useState([{
                 message: "Hello chatbot",
                 sender: "user",
@@ -87,41 +138,15 @@
             // const chatMessages = array[0]; // array[0] là giá trị hiện tại của state gồm một mảng các tin nhắn (chatMessages)
             // const setChatMessages = array[1]; //  array[1] là hàm để cập nhật state (setChatMessages) 
 
-            function sendMessage() {
-                setChatMessages([
-                    ...chatMessages, // spread operator: giúp sao chép tất cả phần tử của mảng chatMessages vào một mảng mới, sau đó thêm phần tử mới vào cuối mảng mới này
-                    {
-                        message: "This is a new message",
-                        sender: "bot",
-                        id: crypto.randomUUID() // tạo id ngẫu nhiên cho tin nhắn mới
-                    }
-                ]);
-            }
-
             return (
                 <>
-                    <button onClick={sendMessage}>Send message</button>
-                    {chatMessages.map((chatMessage) => {
-                        return (
-                            <ChatMessage
-                                message={chatMessage.message}
-                                sender={chatMessage.sender}
-                                key={chatMessage.id} // key prop: giúp React xác định phần tử nào đã thay đổi, được thêm vào hoặc bị xóa, giúp tối ưu hóa hiệu suất khi render lại danh sách các phần tử
-                            />
-                        );
-                    })}
-                </>);
-        }
-
-        function App() {
-
-
-            // const chatMessageCoomponent = 
-
-            return (
-                <>
-                    <ChatInput />
-                    <ChatMessages />
+                    <ChatInput
+                        chatMessages={chatMessages}
+                        setChatMessages={setChatMessages}
+                    />
+                    <ChatMessages
+                        chatMessages={chatMessages} // Name convention là props có cùng tên với state sẽ dễ hiểu hơn, nhưng không bắt buộc phải giống nhau
+                    />
                 </>
             );
         }
