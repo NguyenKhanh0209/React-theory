@@ -5,12 +5,19 @@ import "./HomePage.css";
 
 export function Homepage() {
   const [products, setProducts] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     // Nếu không dùng useEffect, thì khi component được render, nó sẽ thực hiện lệnh axios.get() mỗi lần render, dẫn đến việc gửi nhiều yêu cầu đến server và gây ra hiệu suất kém.
     // Sử dụng useEffect với một mảng rỗng [] làm dependency sẽ đảm bảo rằng lệnh axios.get() chỉ được thực hiện một lần khi component được mount, tránh việc gửi nhiều yêu cầu không cần thiết đến server.
     axios.get("http://localhost:3000/api/products").then((response) => {
+      console.log(response.data);
       setProducts(response.data);
+    });
+
+    axios.get("http://localhost:3000/api/cart-items").then((response) => {
+      console.log(response.data);
+      setCartItems(response.data);
     });
   }, []);
 
@@ -18,7 +25,7 @@ export function Homepage() {
     <>
       <title>Ecommerce Project</title>
 
-      <Header />
+      <Header cart={cartItems} />
 
       <div className="home-page">
         <div className="products-grid">
