@@ -1,15 +1,19 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
-import { products } from "../../starting-code/data/products";
 import "./HomePage.css";
 
 export function Homepage() {
-  fetch("http://localhost:3000/api/products")
-    .then((response) => {
-      return response.json(); // chuyển response từ object thành json
-    })
-    .then((data) => {
-      console.log(data);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    // Nếu không dùng useEffect, thì khi component được render, nó sẽ thực hiện lệnh axios.get() mỗi lần render, dẫn đến việc gửi nhiều yêu cầu đến server và gây ra hiệu suất kém.
+    // Sử dụng useEffect với một mảng rỗng [] làm dependency sẽ đảm bảo rằng lệnh axios.get() chỉ được thực hiện một lần khi component được mount, tránh việc gửi nhiều yêu cầu không cần thiết đến server.
+    axios.get("http://localhost:3000/api/products").then((response) => {
+      setProducts(response.data);
     });
+  }, []);
+
   return (
     <>
       <title>Ecommerce Project</title>
