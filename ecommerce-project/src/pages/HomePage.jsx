@@ -3,9 +3,8 @@ import { useEffect, useState } from "react";
 import { Header } from "../components/Header";
 import "./HomePage.css";
 
-export function Homepage() {
+export function Homepage({ cart }) {
   const [products, setProducts] = useState([]);
-  const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
     // Nếu không dùng useEffect, thì khi component được render, nó sẽ thực hiện lệnh axios.get() mỗi lần render, dẫn đến việc gửi nhiều yêu cầu đến server và gây ra hiệu suất kém.
@@ -14,18 +13,13 @@ export function Homepage() {
       console.log(response.data);
       setProducts(response.data);
     });
-
-    axios.get("/api/cart-items").then((response) => {
-      console.log(response.data);
-      setCartItems(response.data);
-    });
   }, []);
 
   return (
     <>
       <title>Ecommerce Project</title>
 
-      <Header cart={cartItems} />
+      <Header cart={cart} />
 
       <div className="home-page">
         <div className="products-grid">
