@@ -7,6 +7,7 @@ import "./checkout-header.css";
 
 export function CheckoutPage({ cart }) {
   const [deliveryOptions, setDeliveryOptions] = useState([]);
+  const [paymentSummary, setPaymentSummary] = useState(null);
 
   useEffect(() => {
     axios
@@ -15,6 +16,11 @@ export function CheckoutPage({ cart }) {
         console.log(response.data);
         setDeliveryOptions(response.data);
       });
+
+    axios.get("/api/payment-summary").then((response) => {
+      console.log("payment summary", response.data);
+      setPaymentSummary(response.data);
+    });
   }, []);
 
   return (
@@ -50,115 +56,132 @@ export function CheckoutPage({ cart }) {
 
         <div className="checkout-grid">
           <div className="order-summary">
-            {deliveryOptions.length > 0 && cart.map((cardItem) => {
-              const selectedDeliveryOption = deliveryOptions.find(
-                (option) => option.id === cardItem.deliveryOptionId,
-              );
+            {deliveryOptions.length > 0 &&
+              cart.map((cardItem) => {
+                const selectedDeliveryOption = deliveryOptions.find(
+                  (option) => option.id === cardItem.deliveryOptionId,
+                );
 
-              return (
-                <div key={cardItem.productId} className="cart-item-container">
-                  <div className="delivery-date">
-                    Delivery date: {dayjs(selectedDeliveryOption.estimatedDeliveryTimeMs).format("dddd, MMMM D")}
-                  </div>
-
-                  <div className="cart-item-details-grid">
-                    <img
-                      className="product-image"
-                      src={cardItem.product.image}
-                    />
-
-                    <div className="cart-item-details">
-                      <div className="product-name">
-                        {cardItem.product.name}
-                      </div>
-                      <div className="product-price">
-                        {formatMoney(cardItem.product.priceCents)}
-                      </div>
+                return (
+                  <div key={cardItem.productId} className="cart-item-container">
+                    <div className="delivery-date">
+                      Delivery date:{" "}
+                      {dayjs(
+                        selectedDeliveryOption.estimatedDeliveryTimeMs,
+                      ).format("dddd, MMMM D")}
                     </div>
-                    <div className="product-quantity">
-                      <span>
-                        Quantity:{" "}
-                        <span className="quantity-label">
-                          {cardItem.quantity}
+
+                    <div className="cart-item-details-grid">
+                      <img
+                        className="product-image"
+                        src={cardItem.product.image}
+                      />
+
+                      <div className="cart-item-details">
+                        <div className="product-name">
+                          {cardItem.product.name}
+                        </div>
+                        <div className="product-price">
+                          {formatMoney(cardItem.product.priceCents)}
+                        </div>
+                      </div>
+                      <div className="product-quantity">
+                        <span>
+                          Quantity:{" "}
+                          <span className="quantity-label">
+                            {cardItem.quantity}
+                          </span>
                         </span>
-                      </span>
-                      <span className="update-quantity-link link-primary">
-                        Update
-                      </span>
-                      <span className="delete-quantity-link link-primary">
-                        Delete
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="delivery-options">
-                    <div className="delivery-options-title">
-                      Choose a delivery option:
+                        <span className="update-quantity-link link-primary">
+                          Update
+                        </span>
+                        <span className="delete-quantity-link link-primary">
+                          Delete
+                        </span>
+                      </div>
                     </div>
 
-                    {deliveryOptions.map((option) => {
-                      let priceString = "Free Shipping";
-                      if (option.priceCents > 0) {
-                        priceString = `${formatMoney(option.priceCents)} - Shipping`;
-                      }
-                      return (
-                        <div key={option.id} className="delivery-option">
-                          <input
-                            type="radio"
-                            checked={option.id === cardItem.deliveryOptionId} // điều kiện để radio button nào được chọn, đó là option có id trùng với selectedDeliveryOptionId của cardItem
-                            className="delivery-option-input"
-                            name={`delivery-option-${cardItem.productId}`}
-                          />
-                          <div>
-                            <div className="delivery-option-date">
-                              {dayjs(option.estimatedDeliveryTimeMs).format(
-                                "dddd, MMMM D",
-                              )}
-                            </div>
-                            <div className="delivery-option-price">
-                              {priceString}
+                    <div className="delivery-options">
+                      <div className="delivery-options-title">
+                        Choose a delivery option:
+                      </div>
+
+                      {deliveryOptions.map((option) => {
+                        let priceString = "Free Shipping";
+                        if (option.priceCents > 0) {
+                          priceString = `${formatMoney(option.priceCents)} - Shipping`;
+                        }
+                        return (
+                          <div key={option.id} className="delivery-option">
+                            <input
+                              type="radio"
+                              checked={option.id === cardItem.deliveryOptionId} // điều kiện để radio button nào được chọn, đó là option có id trùng với selectedDeliveryOptionId của cardItem
+                              className="delivery-option-input"
+                              name={`delivery-option-${cardItem.productId}`}
+                            />
+                            <div>
+                              <div className="delivery-option-date">
+                                {dayjs(option.estimatedDeliveryTimeMs).format(
+                                  "dddd, MMMM D",
+                                )}
+                              </div>
+                              <div className="delivery-option-price">
+                                {priceString}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
 
           <div className="payment-summary">
             <div className="payment-summary-title">Payment Summary</div>
 
-            <div className="payment-summary-row">
-              <div>Items (3):</div>
-              <div className="payment-summary-money">$42.75</div>
-            </div>
+            {paymentSummary && (
+              <>
+                <div className="payment-summary-row">
+                  <div>Items ({paymentSummary.totalItems}):</div>
+                  <div className="payment-summary-money">
+                    {formatMoney(paymentSummary.productCostCents)}
+                  </div>
+                </div>
 
-            <div className="payment-summary-row">
-              <div>Shipping &amp; handling:</div>
-              <div className="payment-summary-money">$4.99</div>
-            </div>
+                <div className="payment-summary-row">
+                  <div>Shipping &amp; handling:</div>
+                  <div className="payment-summary-money">
+                    \ {formatMoney(paymentSummary.shippingCostCents)}
+                  </div>
+                </div>
 
-            <div className="payment-summary-row subtotal-row">
-              <div>Total before tax:</div>
-              <div className="payment-summary-money">$47.74</div>
-            </div>
+                <div className="payment-summary-row subtotal-row">
+                  <div>Total before tax:</div>
+                  <div className="payment-summary-money">
+                    {formatMoney(paymentSummary.totalCostBeforeTaxCents)}
+                  </div>
+                </div>
 
-            <div className="payment-summary-row">
-              <div>Estimated tax (10%):</div>
-              <div className="payment-summary-money">$4.77</div>
-            </div>
+                <div className="payment-summary-row">
+                  <div>Estimated tax (10%):</div>
+                  <div className="payment-summary-money">
+                    {formatMoney(paymentSummary.taxCents)}
+                  </div>
+                </div>
 
-            <div className="payment-summary-row total-row">
-              <div>Order total:</div>
-              <div className="payment-summary-money">$52.51</div>
-            </div>
-
-            <button className="place-order-button button-primary">
-              Place your order
-            </button>
+                <div className="payment-summary-row total-row">
+                  <div>Order total:</div>
+                  <div className="payment-summary-money">
+                    {formatMoney(paymentSummary.totalCostCents)}
+                  </div>
+                </div>
+                <button className="place-order-button button-primary">
+                  Place your order
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
