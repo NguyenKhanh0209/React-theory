@@ -1,9 +1,10 @@
 import { Route, Routes } from "react-router";
-import { Homepage } from "./pages/HomePage";
-import { CheckoutPage } from "./pages/CheckoutPage";
-import { OrdersPage } from "./pages/OrdersPage";
+
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { HomePage } from "./pages/home/HomePage";
+import { CheckoutPage } from "./pages/checkout/CheckoutPage";
+import { OrdersPage } from "./pages/orders/OrdersPage";
 
 function App() {
   const [cartItems, setCartItems] = useState([]);
@@ -16,10 +17,10 @@ function App() {
   }, []);
   return (
     <Routes>
-      <Route index element={<Homepage cart={cartItems} />} />{" "}
+      <Route index element={<HomePage cart={cartItems} />} />{" "}
       {/* index = path="/" */}
       <Route path="checkout" element={<CheckoutPage cart={cartItems} />} />
-      <Route path="orders" element={<OrdersPage />} />
+      <Route path="orders" element={<OrdersPage cart={cartItems} />} />
     </Routes>
   );
 }
