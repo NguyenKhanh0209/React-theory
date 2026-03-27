@@ -1,32 +1,45 @@
-import dayjs from 'dayjs';
-import { formatMoney } from '../../utils/money';
+import dayjs from "dayjs";
+import { formatMoney } from "../../utils/money";
+import axios from "axios";
 
-export function DeliveryOptions({ cartItem, deliveryOptions }) {
+export function DeliveryOptions({ cartItem, deliveryOptions, loadCart }) {
   return (
     <div className="delivery-options">
-      <div className="delivery-options-title">
-        Choose a delivery option:
-      </div>
+      <div className="delivery-options-title">Choose a delivery option:</div>
       {deliveryOptions.map((deliveryOption) => {
-        let priceString = 'FREE Shipping';
+        let priceString = "FREE Shipping";
 
         if (deliveryOption.priceCents > 0) {
           priceString = `${formatMoney(deliveryOption.priceCents)} - Shipping`;
         }
 
+        const updateDeliveryOption = async () => {
+          await axios.put(`api/cart-items/${cartItem.productId}`, {
+            deliveryOptionId: deliveryOption.id,
+          });
+          await loadCart();
+        };
+
         return (
-          <div key={deliveryOption.id} className="delivery-option">
-            <input type="radio"
+          <div
+            key={deliveryOption.id}
+            className="delivery-option"
+            onClick={updateDeliveryOption}
+          >
+            <input
+              type="radio"
               checked={deliveryOption.id === cartItem.deliveryOptionId}
+              // onChange={() => {}} // onChange phải có vì input là controlled component, nếu không sẽ bị warning do thiếu onChange
               className="delivery-option-input"
-              name={`delivery-option-${cartItem.productId}`} />
+              name={`delivery-option-${cartItem.productId}`}
+            />
             <div>
               <div className="delivery-option-date">
-                {dayjs(deliveryOption.estimatedDeliveryTimeMs).format('dddd, MMMM D')}
+                {dayjs(deliveryOption.estimatedDeliveryTimeMs).format(
+                  "dddd, MMMM D",
+                )}
               </div>
-              <div className="delivery-option-price">
-                {priceString}
-              </div>
+              <div className="delivery-option-price">{priceString}</div>
             </div>
           </div>
         );
