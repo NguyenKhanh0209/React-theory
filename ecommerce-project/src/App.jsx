@@ -9,15 +9,21 @@ import { OrdersPage } from "./pages/orders/OrdersPage";
 function App() {
   const [cartItems, setCartItems] = useState([]);
 
+  const loadCart = async () => {
+    const response = await axios.get("/api/cart-items?expand=product");
+    console.log(response.data);
+    setCartItems(response.data);
+  };
+
   useEffect(() => {
-    axios.get("/api/cart-items?expand=product").then((response) => {
-      console.log(response.data);
-      setCartItems(response.data);
-    });
+    loadCart();
   }, []);
   return (
     <Routes>
-      <Route index element={<HomePage cart={cartItems} />} />{" "}
+      <Route
+        index
+        element={<HomePage cart={cartItems} loadCart={loadCart} />}
+      />
       {/* index = path="/" */}
       <Route path="checkout" element={<CheckoutPage cart={cartItems} />} />
       <Route path="orders" element={<OrdersPage cart={cartItems} />} />
