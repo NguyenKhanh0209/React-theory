@@ -1,6 +1,7 @@
 import { Routes, Route, NavLink } from "react-router-dom";
 import Practice1 from "./pages/beginner/Practice1";
 import "./App.css";
+import Practice2 from "./pages/beginner/Practice2";
 
 function Home() {
   return (
@@ -33,7 +34,15 @@ function App() {
                   to="/beginner/Practice1"
                   className={({ isActive }) => (isActive ? "active-link" : "")}
                 >
-                  Practice 1: Basic Component
+                  Practice 1: Todo list
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/beginner/Practice2"
+                  className={({ isActive }) => (isActive ? "active-link" : "")}
+                >
+                  Practice 2: Counter
                 </NavLink>
               </li>
             </ul>
@@ -51,6 +60,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/beginner/Practice1" element={<Practice1 />} />
+            <Route path="/beginner/Practice2" element={<Practice2 />} />
           </Routes>
         </main>
       </div>
